@@ -1,0 +1,180 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Devotional;
+use App\Models\Tag;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class DevotionalController extends Controller
+{
+    public function index(Request $request)
+    {
+        $q        = trim((string) $request->query('q', ''));
+        $mine     = $request->boolean('mine');
+        $status   = (string) $request->query('status', '');
+        $tagSlugs = (array) $request->query('tags', []);
+
+        $query = Devotional::with(['author','tags']);
+
+        if ($request->user() && $mine) {
+            $query->where('user_id', $request->user()->id);
+            if (in_array($status, ['published','draft','scheduled'], true)) {
+                $query->where('status', $status);
+            }
+        } else {
+            $query->where('status', 'published');
+        }
+
+        if ($q !== '') {
+            $like = "%{$q}%";
+            $query->where(function ($sub) use ($like) {
+                $sub->where('title', 'like', $like)
+                    ->orWhere('excerpt', 'like', $like)
+                    ->orWhere('body', 'like', $like);
+            });
+        }
+
+        if (!empty($tagSlugs)) {
+            $query->whereHas('tags', fn($t) => $t->whereIn('slug', $tagSlugs));
+        }
+
+        $devos = $query->orderByDesc('published_at')
+            ->paginate(10)
+            ->appends([
+                'q' => $q, 'mine' => $mine, 'status' => $status, 'tags' => $tagSlugs,
+            ]);
+
+        $allTags = Tag::orderBy('name')->limit(50)->get();
+
+        return view('devotionals.index', [
+            'devos'      => $devos,
+            'q'          => $q,
+            'mine'       => $mine,
+            'status'     => $status,
+            'allTags'    => $allTags,
+            'tagSlugs'   => $tagSlugs,
+        ]);
+    }
+
+public function show(Devotional $devotional)
+{
+    $this->authorize('view', $devotional);
+
+    $devotional->load(['author','tags']);
+
+    // Related: other PUBLISHED devotionals sharing any tag, newest first
+    $related = Devotional::with(['author','tags'])
+        ->where('id', '!=', $devotional->id)
+        ->where('status', 'published')
+        ->when($devotional->tags->isNotEmpty(), function ($q) use ($devotional) {
+            $tagIds = $devotional->tags->pluck('id');
+            $q->whereHas('tags', fn($t) => $t->whereIn('tags.id', $tagIds));
+        })
+        ->orderByDesc('published_at')
+        ->limit(3)
+        ->get();
+
+    // Comments (newest first)
+    $comments = $devotional->comments()->with('author')->latest()->get();
+
+    return view('devotionals.show', compact('devotional', 'related', 'comments'));
+}
+
+    public function create()
+    {
+        $this->authorize('create', Devotional::class);
+
+        return view('devotionals.create');
+    }
+
+    public function store(Request $request)
+    {
+        $this->authorize('create', Devotional::class);
+
+        $data = $request->validate([
+            'title'        => ['required','max:180'],
+            'excerpt'      => ['nullable','max:500'],
+            'body'         => ['required'],
+            'status'       => ['required','in:draft,published,scheduled'],
+            'published_at' => ['nullable','date'],
+            'tags'         => ['nullable','string','max:500'],
+        ]);
+
+        $devotional = Devotional::create([
+            'user_id'      => $request->user()->id,
+            'title'        => $data['title'],
+            'slug'         => Str::slug($data['title']).'-'.Str::random(6),
+            'excerpt'      => $data['excerpt'] ?? null,
+            'body'         => $data['body'],
+            'status'       => $data['status'],
+            'published_at' => $data['published_at'] ?? now(),
+        ]);
+
+        $this->syncTags($devotional, $data['tags'] ?? '');
+
+        return redirect()->route('devotionals.show', $devotional)
+            ->with('ok','Devotional created.');
+    }
+
+    public function edit(Devotional $devotional)
+    {
+        $this->authorize('update', $devotional);
+
+        $devotional->load('tags');
+
+        return view('devotionals.edit', compact('devotional'));
+    }
+
+    public function update(Request $request, Devotional $devotional)
+    {
+        $this->authorize('update', $devotional);
+
+        $data = $request->validate([
+            'title'        => ['required','max:180'],
+            'excerpt'      => ['nullable','max:500'],
+            'body'         => ['required'],
+            'status'       => ['required','in:draft,published,scheduled'],
+            'published_at' => ['nullable','date'],
+            'tags'         => ['nullable','string','max:500'],
+        ]);
+
+        $devotional->update($data);
+
+        $this->syncTags($devotional, $data['tags'] ?? '');
+
+        return redirect()->route('devotionals.show', $devotional)->with('ok','Updated.');
+    }
+
+    public function destroy(Devotional $devotional)
+    {
+        $this->authorize('delete', $devotional);
+
+        $devotional->delete();
+
+        return redirect()->route('devotionals.index')->with('ok','Deleted.');
+    }
+
+    protected function syncTags(Devotional $devotional, ?string $raw): void
+    {
+        $names = collect(preg_split('/[,;]+/', (string)$raw))
+            ->map(fn($s) => trim($s))
+            ->filter()
+            ->unique()
+            ->take(15);
+
+        if ($names->isEmpty()) {
+            $devotional->tags()->sync([]);
+            return;
+        }
+
+        $ids = $names->map(function ($name) {
+            $slug = Str::slug($name);
+            $tag  = \App\Models\Tag::firstOrCreate(['slug' => $slug], ['name' => $name]);
+            return $tag->id;
+        });
+
+        $devotional->tags()->sync($ids->all());
+    }
+}
