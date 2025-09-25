@@ -28,12 +28,15 @@ class CommentController extends Controller
             ->with('ok','Comment posted.');
     }
 
-    public function destroy(Comment $comment)
-    {
-        $this->authorize('delete', $comment);
+    public function destroy(Devotional $devotional, Comment $comment)
+{
+    $this->authorize('delete', $comment);
 
-        $comment->delete();
+    $comment->delete();
 
-        return back()->with('ok','Comment deleted.');
-    }
+    return redirect()
+        ->route('devotionals.show', $devotional)
+        ->with('ok', 'Comment deleted.');
+}
+
 }

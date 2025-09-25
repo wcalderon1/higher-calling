@@ -89,11 +89,13 @@
                         <span>• {{ $c->created_at->diffForHumans() }}</span>
                     </div>
                     @can('delete', $c)
-                        <form method="POST" action="{{ route('comments.destroy', $c) }}"
-                              onsubmit="return confirm('Delete this comment?');">
-                            @csrf @method('DELETE')
-                            <button class="text-xs rounded border px-2 py-1 text-red-600 hover:bg-red-50">Delete</button>
-                        </form>
+                    <form method="POST" action="{{ route('comments.destroy', ['devotional' => $devotional, 'comment' => $c]) }}"
+                          onsubmit="return confirm('Delete this comment?');">
+                        @csrf
+                        @method('DELETE')
+                        <button class="text-xs rounded border px-2 py-1 text-red-600 hover:bg-red-50">Delete</button>
+                    </form>
+
                     @endcan
                 </div>
                 <p class="mt-2 text-gray-800 whitespace-pre-line">{{ $c->body }}</p>
