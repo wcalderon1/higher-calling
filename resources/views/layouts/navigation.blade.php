@@ -12,8 +12,6 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-
-
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')">Home</x-nav-link>
 
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
@@ -44,6 +42,11 @@
                         </x-slot>
 
                         <x-slot name="content">
+                            {{-- Public view of my profile (desktop only) --}}
+                            <x-dropdown-link :href="route('profile.me')">
+                                {{ __('My Profile') }}
+                            </x-dropdown-link>
+
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
@@ -82,7 +85,7 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
+    <!-- Responsive Navigation Menu (left as-is; no mobile-specific additions) -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
@@ -102,6 +105,7 @@
                 </div>
 
                 <div class="mt-3 space-y-1">
+                    {{-- no mobile "My Profile" added per your preference --}}
                     <x-responsive-nav-link :href="route('profile.edit')">
                         {{ __('Profile') }}
                     </x-responsive-nav-link>
