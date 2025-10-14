@@ -10,3 +10,18 @@
 *.bak
 .DS_Store
 Thumbs.db
+# build + dev server
+/public/build
+/public/hot
+
+# dependencies
+/node_modules
+/vendor
+
+# env files
+.env
+.env.local
+
+# runtime
+/storage/logs
+/storage/framework
