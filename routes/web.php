@@ -69,8 +69,10 @@ Route::get('devotionals/{devotional:slug}', [DevotionalController::class, 'show'
 
 // Public profile by user id (MVP)
 Route::get('/u/{user}', [ProfileController::class, 'show'])->name('profile.show');
-Route::post('/devotionals/{devotional}/read', [UserReadController::class, 'store'])
-    ->middleware('auth')
+// Mark today's devotional as read (auth)
+Route::post('devotionals/{devotional:slug}/read', [UserReadController::class, 'store'])
+    ->middleware(['auth'])
     ->name('devotionals.read');
+
 
 require __DIR__.'/auth.php';
