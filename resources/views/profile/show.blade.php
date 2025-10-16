@@ -88,6 +88,7 @@
 <!-- CONTENT -->
 <div class="max-w-4xl mx-auto px-6 pt-8 pb-16">
     <div class="grid gap-6">
+
         <!-- About card -->
         <div class="bg-white rounded-xl border shadow-sm p-6">
             <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">About</h2>
@@ -100,75 +101,115 @@
             @endif
         </div>
 
-<!-- Latest Devotionals -->
-<div class="bg-white rounded-xl border shadow-sm p-6">
-    <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Latest Devotionals</h2>
+        <!-- 🔥 Streaks (owner only, safe if service missing) -->
+        @if($isMe)
+            @auth
+                @php
+                    $streaks = null;
+                    if (class_exists(\App\Services\StreakService::class)) {
+                        try {
+                            $streaks = app(\App\Services\StreakService::class)->get(auth()->id());
+                        } catch (\Throwable $e) {
+                            $streaks = null;
+                        }
+                    }
+                @endphp
 
-    @auth
-        @php
-            $todayRead = auth()->user()->reads()->whereDate('read_on', today())->first();
-            $hasReadToday = (bool) $todayRead;
-            $todayDevotionalId = optional($todayRead)->devotional_id;
-        @endphp
+                @if($streaks)
+                    <div class="bg-white rounded-xl border shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                Your Streaks
+                            </h2>
+                            <span class="text-xs text-slate-400">Only visible to you</span>
+                        </div>
 
-        @if($hasReadToday)
-            <div class="mt-2 inline-flex items-center gap-2 px-2 py-1 rounded bg-green-100 text-green-800 text-xs">
-                ✓ You’ve already marked a devotional as read today.
-            </div>
-        @endif
-    @endauth
-
-    @if(($recentDevos ?? collect())->count())
-        <ul class="mt-3 divide-y">
-            @foreach ($recentDevos as $d)
-                <li class="py-3 flex items-center justify-between">
-                    <a href="{{ route('devotionals.show', $d) }}"
-                       class="font-medium text-slate-900 hover:underline truncate">
-                        {{ $d->title }}
-                    </a>
-
-                    <div class="flex items-center gap-3 shrink-0 ms-3">
-                        <span class="text-sm text-slate-500">{{ optional($d->created_at)->format('M d, Y') }}</span>
-
-                        @auth
-                            @if(!$hasReadToday)
-                                <form method="POST" action="{{ route('devotionals.read', $d) }}">
-                                    @csrf
-                                    <button type="submit"
-                                        class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-700">
-                                        Mark as Read
-                                    </button>
-                                </form>
-                            @else
-                                @if(isset($todayDevotionalId) && $todayDevotionalId === $d->id)
-                                    <span class="px-2 py-1 rounded-lg bg-green-100 text-green-800 text-xs">
-                                        ✓ Read Today
-                                    </span>
-                                @endif
-                            @endif
-                        @endauth
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="p-4 rounded-2xl shadow-sm ring-1 ring-slate-100">
+                                <div class="text-sm text-slate-500">Current Streak</div>
+                                <div class="mt-1 text-2xl font-semibold">🔥 {{ $streaks['current'] }} day(s)</div>
+                            </div>
+                            <div class="p-4 rounded-2xl shadow-sm ring-1 ring-slate-100">
+                                <div class="text-sm text-slate-500">Longest Streak</div>
+                                <div class="mt-1 text-2xl font-semibold">🏆 {{ $streaks['longest'] }} day(s)</div>
+                            </div>
+                        </div>
                     </div>
-                </li>
-            @endforeach
-        </ul>
+                @endif
+            @endauth
+        @endif
 
-        @if($isMe)
-            <a href="{{ route('devotionals.index') }}"
-               class="mt-4 inline-block text-sm text-slate-600 hover:underline">
-               View all devotionals
-            </a>
-        @endif
-    @else
-        @if($isMe)
-            <p class="mt-3 text-slate-500">You haven’t posted any devotionals yet.</p>
-            <a href="{{ route('devotionals.create') }}"
-               class="mt-4 inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-900 text-white text-sm hover:bg-slate-700">
-               Write your first devotional
-            </a>
-        @else
-            <p class="mt-3 text-slate-500">No devotionals yet.</p>
-        @endif
-    @endif
+        <!-- Latest Devotionals -->
+        <div class="bg-white rounded-xl border shadow-sm p-6">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Latest Devotionals</h2>
+
+            @auth
+                @php
+                    $todayRead = auth()->user()->reads()->whereDate('read_on', today())->first();
+                    $hasReadToday = (bool) $todayRead;
+                    $todayDevotionalId = optional($todayRead)->devotional_id;
+                @endphp
+
+                @if($hasReadToday)
+                    <div class="mt-2 inline-flex items-center gap-2 px-2 py-1 rounded bg-green-100 text-green-800 text-xs">
+                        ✓ You’ve already marked a devotional as read today.
+                    </div>
+                @endif
+            @endauth
+
+            @if(($recentDevos ?? collect())->count())
+                <ul class="mt-3 divide-y">
+                    @foreach ($recentDevos as $d)
+                        <li class="py-3 flex items-center justify-between">
+                            <a href="{{ route('devotionals.show', $d) }}"
+                               class="font-medium text-slate-900 hover:underline truncate">
+                                {{ $d->title }}
+                            </a>
+
+                            <div class="flex items-center gap-3 shrink-0 ms-3">
+                                <span class="text-sm text-slate-500">{{ optional($d->created_at)->format('M d, Y') }}</span>
+
+                                @auth
+                                    @if(!$hasReadToday)
+                                        <form method="POST" action="{{ route('devotionals.read', $d) }}">
+                                            @csrf
+                                            <button type="submit"
+                                                class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-700">
+                                                Mark as Read
+                                            </button>
+                                        </form>
+                                    @else
+                                        @if(isset($todayDevotionalId) && $todayDevotionalId === $d->id)
+                                            <span class="px-2 py-1 rounded-lg bg-green-100 text-green-800 text-xs">
+                                                ✓ Read Today
+                                            </span>
+                                        @endif
+                                    @endif
+                                @endauth
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+
+                @if($isMe)
+                    <a href="{{ route('devotionals.index') }}"
+                       class="mt-4 inline-block text-sm text-slate-600 hover:underline">
+                       View all devotionals
+                    </a>
+                @endif
+            @else
+                @if($isMe)
+                    <p class="mt-3 text-slate-500">You haven’t posted any devotionals yet.</p>
+                    <a href="{{ route('devotionals.create') }}"
+                       class="mt-4 inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-900 text-white text-sm hover:bg-slate-700">
+                       Write your first devotional
+                    </a>
+                @else
+                    <p class="mt-3 text-slate-500">No devotionals yet.</p>
+                @endif
+            @endif
+        </div>
+
+    </div>
 </div>
-
 @endsection

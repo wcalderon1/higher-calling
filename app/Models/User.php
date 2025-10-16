@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 class User extends Authenticatable // implements MustVerifyEmail
@@ -15,6 +17,10 @@ class User extends Authenticatable // implements MustVerifyEmail
         'name',
         'email',
         'password',
+        // profile fields
+        'display_name',
+        'bio',
+        'avatar_path',
     ];
 
     protected $hidden = [
@@ -27,9 +33,51 @@ class User extends Authenticatable // implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
-    // A user has many devotionals
-    public function devotionals()
+    // If you want avatar_url to appear in arrays/JSON:
+    // protected $appends = ['avatar_url'];
+
+    // Accessor: $user->avatar_url
+    public function getAvatarUrlAttribute(): string
+    {
+        return $this->avatar_path
+            ? asset('storage/' . $this->avatar_path)
+            : asset('images/avatar-default.png');
+    }
+
+    /** A user has many devotionals */
+    public function devotionals(): HasMany
     {
         return $this->hasMany(Devotional::class, 'user_id');
+    }
+
+    /** People who follow THIS user */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')
+                    ->withTimestamps();
+    }
+
+    /** People THIS user is following */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')
+                    ->withTimestamps();
+    }
+
+    public function isFollowing(User $user): bool
+    {
+        return $this->following()->whereKey($user->getKey())->exists();
+    }
+
+    /** Reads relationship */
+    public function reads(): HasMany
+    {
+        return $this->hasMany(UserRead::class);
+    }
+
+    /** Has the user marked any devotional as read today? */
+    public function hasReadToday(): bool
+    {
+        return $this->reads()->whereDate('read_on', today())->exists();
     }
 }

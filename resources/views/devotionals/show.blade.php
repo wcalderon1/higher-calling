@@ -49,6 +49,51 @@
             @endif
         </header>
 
+        {{-- 🔥 Mark as Read (auth only) --}}
+        @auth
+            @php
+                // Has the current user already marked a read for today?
+                $todayRead = auth()->user()->reads()->whereDate('read_on', today())->first();
+                $hasReadToday = (bool) $todayRead;
+                // Optional guard: if you want to only show when this is today's devotional, keep this truthy check
+                $isTodayDevotional = optional($devotional->published_at)->isToday() ?? true; // default true if null
+            @endphp
+
+            {{-- Flash messages from controller --}}
+            @if(session('success'))
+                <div class="mt-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm px-3 py-2">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if(session('info'))
+                <div class="mt-4 rounded-lg bg-amber-50 text-amber-800 text-sm px-3 py-2">
+                    {{ session('info') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="mt-4 rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <div class="mt-5 flex items-center justify-between gap-3">
+                @if(!$hasReadToday && $isTodayDevotional)
+                    <form method="POST" action="{{ route('devotionals.read', $devotional) }}">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="rounded-xl bg-emerald-600 text-white px-4 py-2 text-sm hover:bg-emerald-700">
+                            Mark as Read ✅
+                        </button>
+                    </form>
+                @else
+                    <span class="inline-flex items-center gap-2 rounded-xl bg-green-100 text-green-800 px-3 py-1.5 text-xs">
+                        ✓ Already counted for today
+                    </span>
+                @endif
+            </div>
+        @endauth
+
         <div class="prose max-w-none mt-6">
             {!! nl2br(e($devotional->body)) !!}
         </div>
@@ -95,7 +140,6 @@
                         @method('DELETE')
                         <button class="text-xs rounded border px-2 py-1 text-red-600 hover:bg-red-50">Delete</button>
                     </form>
-
                     @endcan
                 </div>
                 <p class="mt-2 text-gray-800 whitespace-pre-line">{{ $c->body }}</p>

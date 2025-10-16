@@ -9,13 +9,6 @@ class UserRead extends Model
 {
     protected $fillable = ['user_id', 'devotional_id', 'read_on'];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function devotional(): BelongsTo
-    {
-        return $this->belongsTo(Devotional::class);
-    }
+    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function devotional(): BelongsTo { return $this->belongsTo(Devotional::class); }
 }
