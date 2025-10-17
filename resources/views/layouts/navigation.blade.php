@@ -22,6 +22,16 @@
                     <x-nav-link :href="route('devotionals.index')" :active="request()->routeIs('devotionals.*')">
                         {{ __('Devotionals') }}
                     </x-nav-link>
+
+                    <x-nav-link :href="route('plans.index')" :active="request()->routeIs('plans.*')">
+                         {{ __('Plans') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('profile.me')" :active="request()->routeIs('profile.me')">
+                      My Profile
+                    </x-nav-link>
+
+
                 </div>
             </div>
 
@@ -105,7 +115,7 @@
                 </div>
 
                 <div class="mt-3 space-y-1">
-                    {{-- no mobile "My Profile" added per your preference --}}
+                    {{--"My Profile" added per your preference --}}
                     <x-responsive-nav-link :href="route('profile.edit')">
                         {{ __('Profile') }}
                     </x-responsive-nav-link>

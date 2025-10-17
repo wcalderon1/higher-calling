@@ -9,7 +9,10 @@ use Illuminate\Support\Collection;
 
 class StreakService
 {
-    protected function key(int $userId): string { return "streaks:{$userId}"; }
+    protected function key(int $userId): string
+    {
+        return "streaks:{$userId}";
+    }
 
     public function forget(int $userId): void
     {
@@ -68,6 +71,20 @@ class StreakService
         return Cache::remember($this->key($userId), now()->addMinutes(30), fn() => $this->build($userId));
     }
 
-    public function current(int $userId): int { return $this->get($userId)['current']; }
-    public function longest(int $userId): int { return $this->get($userId)['longest']; }
+    public function current(int $userId): int
+    {
+        return $this->get($userId)['current'];
+    }
+
+    public function longest(int $userId): int
+    {
+        return $this->get($userId)['longest'];
+    }
+
+    // ✅ Added helper so controller call works
+    public function recomputeFor(int $userId): void
+    {
+        $this->forget($userId);       // clear cached streak data
+        $this->get($userId);          // rebuild and cache again
+    }
 }

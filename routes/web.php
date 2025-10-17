@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\UserReadController;
+// ⬇️ Added for Reading Plans
+use App\Http\Controllers\PlanController;
+use App\Http\Controllers\PlanProgressController;
 
 Route::get('/', [HomeController::class, 'show'])->name('home');
 
@@ -56,6 +59,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/u/{user}/followers', [ProfileController::class, 'followers'])->name('profile.followers');
     Route::get('/u/{user}/following', [ProfileController::class, 'following'])->name('profile.following');
+
+    // Added Reading Plans (auth actions)
+    Route::post('plans/{plan:slug}/start', [PlanController::class, 'start'])->name('plans.start');
+    Route::post('plans/{plan:slug}/pause', [PlanController::class, 'pause'])->name('plans.pause');
+    Route::post('plan-entries/{entry}/toggle', [PlanProgressController::class, 'toggle'])->name('plan_entries.toggle');
 });
 
 /**
@@ -69,10 +77,14 @@ Route::get('devotionals/{devotional:slug}', [DevotionalController::class, 'show'
 
 // Public profile by user id (MVP)
 Route::get('/u/{user}', [ProfileController::class, 'show'])->name('profile.show');
+
 // Mark today's devotional as read (auth)
 Route::post('devotionals/{devotional:slug}/read', [UserReadController::class, 'store'])
     ->middleware(['auth'])
     ->name('devotionals.read');
 
+// Added Reading Plans (public views)
+Route::get('plans', [PlanController::class, 'index'])->name('plans.index');
+Route::get('plans/{plan:slug}', [PlanController::class, 'show'])->name('plans.show');
 
 require __DIR__.'/auth.php';

@@ -64,9 +64,18 @@ class User extends Authenticatable // implements MustVerifyEmail
                     ->withTimestamps();
     }
 
-    public function isFollowing(User $user): bool
+    /** Is this user following the given user (by model or id)? */
+    public function isFollowing(User|int $user): bool
     {
-        return $this->following()->whereKey($user->getKey())->exists();
+        $id = $user instanceof User ? $user->getKey() : $user;
+        return $this->following()->whereKey($id)->exists();
+    }
+
+    /** Is this user followed by the given user (by model or id)? */
+    public function isFollowedBy(User|int $user): bool
+    {
+        $id = $user instanceof User ? $user->getKey() : $user;
+        return $this->followers()->whereKey($id)->exists();
     }
 
     /** Reads relationship */
