@@ -60,13 +60,17 @@
                 </svg>
               </a>
 
-              {{-- Curated + author --}}
-              <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                @if($entry->devotional->is_curated)
-                  <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-700">Curated</span>
-                @endif
-                <span>By {{ $entry->devotional->user->display_name ?? $entry->devotional->user->name }}</span>
-              </div>
+  {{-- Curated + author --}}
+  <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
+    @if($entry->devotional->is_curated)
+     <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-700">Curated</span>
+    @endif
+   <span>
+      By {{ optional($entry->devotional->user)->display_name
+          ?? optional($entry->devotional->user)->name
+          ?? 'Unknown' }}
+  </span>
+</div>
 
             @elseif($entry->title)
               <div class="font-medium">{{ $entry->title }}</div>
