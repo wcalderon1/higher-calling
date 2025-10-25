@@ -53,7 +53,7 @@
 
             @if($entry->devotional)
               <a class="group inline-flex items-center gap-1 text-amber-700 hover:text-amber-800 underline underline-offset-2"
-                 href="{{ route('devotionals.show', $entry->devotional->slug) }}">
+                 href="{{ route('devotionals.show', $entry->devotional) }}">
                 <span class="truncate">{{ $entry->devotional->title }}</span>
                 <svg class="w-4 h-4 transition group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path d="M12.293 3.293a1 1 0 011.414 0L18 7.586a1 1 0 010 1.414l-4.293 4.293a1 1 0 11-1.414-1.414L14.586 9H4a1 1 0 110-2h10.586l-2.293-2.293a1 1 0 010-1.414z"/>
@@ -61,16 +61,18 @@
               </a>
 
   {{-- Curated + author --}}
-  <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
-    @if($entry->devotional->is_curated)
-     <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-700">Curated</span>
+    <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
+      @if($entry->devotional->is_curated)
+    <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-700">Curated</span>
+   @endif
+
+   @php $author = $entry->devotional->user ?? null; @endphp
+    @if($author)
+     <span>By {{ $author->display_name ?? $author->name }}</span>
+   @else
+      <span class="text-gray-400">By Unknown</span>
     @endif
-   <span>
-      By {{ optional($entry->devotional->user)->display_name
-          ?? optional($entry->devotional->user)->name
-          ?? 'Unknown' }}
-  </span>
-</div>
+  </div>
 
             @elseif($entry->title)
               <div class="font-medium">{{ $entry->title }}</div>
