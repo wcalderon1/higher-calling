@@ -16,12 +16,13 @@ class PlanController extends Controller
     }
 
     public function show(Plan $plan) {
-    $plan->load(['entries.devotional' => function ($q) {
-    $q->where('is_curated', true)
-      ->whereNotNull('published_at')
-      ->with('user:id,name,display_name');
-}]);
-
+    $plan->load([
+    'entries.devotional' => function ($q) {
+        $q->where('is_curated', true)
+          ->whereNotNull('published_at');
+    },
+    'entries.devotional.user:id,name,display_name',
+]);
 
         $userPlan = auth()->check()
             ? UserPlan::firstOrCreate(
