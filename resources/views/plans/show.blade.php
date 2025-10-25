@@ -2,75 +2,77 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto p-4">
+
   {{-- Header --}}
-  <div class="flex items-center justify-between mb-5">
+  <div class="flex items-center justify-between mb-6">
     <div class="min-w-0">
-      <h1 class="text-2xl font-bold tracking-tight truncate">{{ $plan->title }}</h1>
+      <h1 class="text-3xl font-bold text-gray-900 truncate">{{ $plan->title }}</h1>
       @if($plan->description)
-        <p class="text-gray-600">{{ $plan->description }}</p>
+        <p class="text-gray-600 text-sm md:text-base">{{ $plan->description }}</p>
       @endif
     </div>
     @auth
       <form method="post" action="{{ route('plans.start',$plan) }}">
         @csrf
-        <button class="px-3 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 transition">
+        <button
+          class="text-sm px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:opacity-90">
           Start / Resume
         </button>
       </form>
     @endauth
   </div>
 
-  {{-- Progress --}}
+  {{-- Progress (match gradient) --}}
   @auth
     @if($userPlan)
-      <div class="mb-5 space-y-1">
-        <div class="flex items-center justify-between text-sm text-gray-600">
+      <div class="mb-6">
+        <div class="flex items-center justify-between text-sm text-gray-600 mb-1">
           <span>Progress</span>
           <span class="font-medium text-gray-800">{{ $userPlan->progressPercent() }}%</span>
         </div>
-        <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-          <div class="h-2 rounded-full"
-               style="width: {{ $userPlan->progressPercent() }}%;
-                      background: linear-gradient(90deg, #f59e0b, #f97316);">
-          </div>
+        <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-400"
+               style="width: {{ $userPlan->progressPercent() }}%"></div>
         </div>
       </div>
     @endif
   @endauth
 
   {{-- Entries --}}
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     @foreach($plan->entries as $entry)
       @php
-        $done   = isset($userEntries[$entry->id]) && $userEntries[$entry->id]->completed_at;
-        $devo   = $entry->devotional ?? null;
+        $done = isset($userEntries[$entry->id]) && $userEntries[$entry->id]->completed_at;
+        $devo = $entry->devotional ?? null;
       @endphp
 
-      <div class="border rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition">
-        <div class="flex items-center gap-3">
+      <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-5 border border-gray-100">
+        <div class="flex items-start justify-between gap-4">
           {{-- Left: day + title + meta --}}
-          <div class="flex-1 min-w-0">
-            <div class="inline-flex items-center text-[11px] font-medium text-gray-700 bg-gray-100 rounded-full px-2 py-0.5 mb-1">
+          <div class="min-w-0 flex-1">
+            <div class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium text-gray-800 bg-gray-100">
               Day {{ $entry->day_number }}
             </div>
 
             @if($devo)
-              <a
-                class="block font-medium text-amber-700 hover:text-amber-800 underline underline-offset-2 truncate"
-                href="{{ route('devotionals.show', $devo) }}"
-                title="{{ $devo->title }}"
-              >
+              <a href="{{ route('devotionals.show', $devo) }}"
+                 class="mt-1 block text-[15px] font-semibold text-gray-900 hover:text-indigo-700 transition truncate"
+                 title="{{ $devo->title }}">
                 {{ $devo->title }}
               </a>
 
-              {{-- Curated badge (kept subtle) --}}
+              {{-- Curated badge (use same palette as index) --}}
               @if($devo->is_curated)
                 <div class="mt-1">
-                  <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] text-green-700">Curated</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-800">
+                    Curated
+                  </span>
                 </div>
               @endif
             @elseif(!empty($entry->title))
-              <div class="font-medium truncate" title="{{ $entry->title }}">{{ $entry->title }}</div>
+              <div class="mt-1 text-[15px] font-semibold text-gray-900 truncate" title="{{ $entry->title }}">
+                {{ $entry->title }}
+              </div>
             @endif
 
             @if(!empty($entry->scripture_ref))
@@ -78,19 +80,18 @@
             @endif
           </div>
 
-          {{-- Right: action pill (fixed size) --}}
+          {{-- Right: action pill (match theme) --}}
           @auth
             @if($done)
-              <span class="inline-flex items-center justify-center rounded-md bg-green-600 text-white text-xs px-3 py-1.5">
+              <span class="inline-flex items-center justify-center rounded-lg bg-emerald-600 text-white text-xs px-3 py-1.5">
                 Done
               </span>
             @else
               <form method="post" action="{{ route('plan_entries.toggle',$entry) }}">
                 @csrf
                 <button
-                  class="inline-flex items-center justify-center rounded-md bg-gray-800 text-white text-xs px-3 py-1.5 hover:bg-gray-900"
-                  type="submit"
-                >
+                  class="inline-flex items-center justify-center rounded-lg text-xs px-3 py-1.5
+                         bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:opacity-90">
                   Mark Done
                 </button>
               </form>
