@@ -32,6 +32,11 @@ class Devotional extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function user()
+    {
+    return $this->belongsTo(\App\Models\User::class);
+    }
+
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
