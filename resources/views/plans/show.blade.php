@@ -60,18 +60,11 @@
                 </svg>
               </a>
 
-  {{-- Curated + author --}}
-    <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
-      @if($entry->devotional->is_curated)
+      {{-- Curated badge only (temporarily hide author to avoid null crash) --}}
+  <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
+   @if($entry->devotional && $entry->devotional->is_curated)
     <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-700">Curated</span>
    @endif
-
-   @php $author = $entry->devotional->user ?? null; @endphp
-    @if($author)
-     <span>By {{ $author->display_name ?? $author->name }}</span>
-   @else
-      <span class="text-gray-400">By Unknown</span>
-    @endif
   </div>
 
             @elseif($entry->title)
