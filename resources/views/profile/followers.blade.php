@@ -47,7 +47,8 @@
                            class="font-medium text-gray-900 hover:text-indigo-700 truncate">
                             {{ $follower->display_name ?? $follower->name }}
                         </a>
-                        <div class="text-xs text-gray-500 truncate">@{{ $follower->id }}</div>
+                        <div class="text-xs text-gray-500 truncate">{{ '@' . $follower->id }}</div>
+
                         @if(!empty($follower->bio))
                             <div class="text-xs text-gray-500 truncate mt-0.5">
                                 {{ \Illuminate\Support\Str::limit($follower->bio, 80) }}
