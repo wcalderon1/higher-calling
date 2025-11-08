@@ -12,6 +12,45 @@
 </head>
 <body class="font-sans antialiased text-gray-800 bg-gray-50">
 
+@if(auth()->check() && auth()->user()->is_admin)
+
+    <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/10 border border-white/20 text-[10px] font-semibold uppercase tracking-wide">
+                    Admin
+                </span>
+                <span>
+                    You are signed in as
+                    <span class="font-semibold">
+                        {{ auth()->user()->display_name ?? auth()->user()->name }}
+                    </span>.
+                    You can manage and delete any content.
+                </span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 text-xs">
+                <a href="{{ route('devotionals.index') }}" class="underline hover:no-underline">
+                    Devotionals
+                </a>
+
+                @if(Route::has('plans.index'))
+                    <a href="{{ route('plans.index') }}" class="underline hover:no-underline">
+                        Reading Plans
+                    </a>
+                @endif
+
+                @if(Route::has('profile.me'))
+                    <a href="{{ route('profile.me') }}" class="underline hover:no-underline">
+                        My Profile
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+@endif
+
+
     {{-- Top Navigation --}}
     @include('layouts.navigation')
 

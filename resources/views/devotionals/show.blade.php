@@ -33,6 +33,38 @@
                 @if($devotional->status !== 'published') • <span class="uppercase tracking-wide">{{ $devotional->status }}</span> @endif
             </p>
 
+            @if(auth()->check() && auth()->user()->is_admin)
+    <div class="mt-4 mb-6 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-amber-900">
+        <div class="flex items-center gap-2">
+            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold uppercase tracking-wide">
+                Admin
+            </span>
+            <span>
+                You can edit or delete this devotional.
+            </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a href="{{ route('devotionals.edit', $devotional) }}"
+               class="inline-flex items-center rounded-md border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium hover:bg-amber-50">
+                Edit
+            </a>
+
+            <form method="POST"
+                  action="{{ route('devotionals.destroy', $devotional) }}"
+                  onsubmit="return confirm('Delete this devotional? This cannot be undone.');">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="inline-flex items-center rounded-md border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+@endif
+
+
             @if($devotional->excerpt)
                 <p class="mt-4 text-gray-700">{{ $devotional->excerpt }}</p>
             @endif
@@ -49,7 +81,7 @@
             @endif
         </header>
 
-        {{-- 🔥 Mark as Read (auth only) --}}
+        {{-- Mark as Read (auth only) --}}
         @auth
             @php
                 // Has the current user already marked a read for today?
