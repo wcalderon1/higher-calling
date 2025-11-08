@@ -24,7 +24,7 @@
             @endif
 
             <form method="POST" action="{{ route('devotionals.update', $devotional) }}" class="space-y-6" enctype="multipart/form-data">
-                @csrf @method('PUT')
+                @csrf @method('PATCH')
 
                 <div>
                     <label class="block text-sm font-medium mb-1" for="title">Title</label>
