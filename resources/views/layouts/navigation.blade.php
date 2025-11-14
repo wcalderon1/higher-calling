@@ -1,18 +1,21 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    {{-- Logo goes to Home --}}
+                    <a href="{{ route('home') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">Home</x-nav-link>
+                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
+                        Home
+                    </x-nav-link>
 
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
@@ -28,20 +31,44 @@
                     </x-nav-link>
 
                     <x-nav-link :href="route('profile.me')" :active="request()->routeIs('profile.me')">
-                      My Profile
+                        My Profile
                     </x-nav-link>
-
-
                 </div>
             </div>
 
             <!-- Right side -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
+                {{-- Global search (desktop) --}}
+                <form
+                    action="{{ route('search.index') }}"
+                    method="GET"
+                    class="hidden md:block"
+                >
+                    <div class="relative w-56 lg:w-72">
+                        <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 5.25 5.25a7.5 7.5 0 0 0 11.4 11.4Z" />
+                            </svg>
+                        </span>
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ request('q') }}"
+                            placeholder="Search…"
+                            class="w-full rounded-full border border-amber-200 bg-white px-9 py-2 text-xs
+                                   text-gray-700 placeholder:text-gray-400 shadow-sm
+                                   focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                        >
+                    </div>
+                </form>
+
                 @auth
                     <!-- Settings Dropdown (only when logged in) -->
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-600 bg-white hover:text-gray-800 hover:bg-gray-50 focus:outline-none transition ease-in-out duration-150">
                                 <div>{{ auth()->user()->name }}</div>
                                 <div class="ms-1">
                                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -95,9 +122,33 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu (left as-is; no mobile-specific additions) -->
+    <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            {{-- Mobile search --}}
+            <div class="px-4 pb-2">
+                <form action="{{ route('search.index') }}" method="GET">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 5.25 5.25a7.5 7.5 0 0 0 11.4 11.4Z" />
+                            </svg>
+                        </span>
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ request('q') }}"
+                            placeholder="Search…"
+                            class="w-full rounded-full border border-gray-200 bg-gray-50 px-9 py-2 text-xs
+                                   text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-400
+                                   focus:border-transparent"
+                        >
+                    </div>
+                </form>
+            </div>
+
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
