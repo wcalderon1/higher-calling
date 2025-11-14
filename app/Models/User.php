@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Models;
 
@@ -31,10 +31,8 @@ class User extends Authenticatable // implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_admin' => 'boolean',
     ];
-
-    // If you want avatar_url to appear in arrays/JSON:
-    // protected $appends = ['avatar_url'];
 
     // Accessor: $user->avatar_url
     public function getAvatarUrlAttribute(): string
@@ -88,5 +86,11 @@ class User extends Authenticatable // implements MustVerifyEmail
     public function hasReadToday(): bool
     {
         return $this->reads()->whereDate('read_on', today())->exists();
+    }
+
+    /** Is this user an admin */
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\UserReadController;
-// ⬇️ Added for Reading Plans
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PlanProgressController;
 
@@ -86,5 +86,8 @@ Route::post('devotionals/{devotional:slug}/read', [UserReadController::class, 's
 // Added Reading Plans (public views)
 Route::get('plans', [PlanController::class, 'index'])->name('plans.index');
 Route::get('plans/{plan:slug}', [PlanController::class, 'show'])->name('plans.show');
+//Global Search
+Route::get('/search', SearchController::class)->name('search.index');
+
 
 require __DIR__.'/auth.php';
