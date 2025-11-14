@@ -13,7 +13,6 @@
 <body class="font-sans antialiased text-gray-800 bg-gray-50">
 
 @if(auth()->check() && auth()->user()->is_admin)
-
     <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm">
         <div class="max-w-7xl mx-auto px-4 py-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-2">
@@ -50,7 +49,6 @@
     </div>
 @endif
 
-
     {{-- Top Navigation --}}
     @include('layouts.navigation')
 
@@ -67,10 +65,18 @@
     @endisset
 
     @php
-        // Precompute streaks once
+        use Illuminate\Support\Facades\Route;
+
+        // Only show streak on the home page
+        $showStreak = Route::currentRouteNamed('home');
+
         $streaks = null;
-        if (auth()->check() && class_exists(\App\Services\StreakService::class)) {
-            try { $streaks = app(\App\Services\StreakService::class)->get(auth()->id()); } catch (\Throwable $e) { $streaks = null; }
+        if ($showStreak && auth()->check() && class_exists(\App\Services\StreakService::class)) {
+            try {
+                $streaks = app(\App\Services\StreakService::class)->get(auth()->id());
+            } catch (\Throwable $e) {
+                $streaks = null;
+            }
         }
 
         $current = $streaks['current'] ?? 0;
@@ -96,27 +102,29 @@
 
                 {{-- Right / Sidebar --}}
                 <aside class="lg:col-span-4 space-y-6">
-                    {{-- Streak card in sidebar so it doesn't push main down --}}
-                    @if($streaks)
-                        <div class="flex justify-end">
-                            <div class="inline-flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-700 shadow-sm {{ $ringClass }}"
+                    {{-- Streak card only on home page, full-width in sidebar --}}
+                    @if($showStreak && $streaks)
+                        <div>
+                            <div class="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-gray-700 shadow-sm {{ $ringClass }}"
                                  title="{{ $hitMilestone ? 'Milestone reached!' : 'Keep going to your next milestone' }}">
-                                <div class="inline-flex items-center gap-1.5">
-                                    <span class="text-base">🔥</span>
-                                    <span class="text-xs uppercase tracking-wide text-gray-500">Streak</span>
-                                    <span class="text-sm font-semibold tabular-nums">{{ $current }}d</span>
-                                </div>
-                                <div class="w-28">
-                                    <div class="flex justify-between text-[10px] text-gray-400">
-                                        <span>{{ $prev }}d</span>
-                                        <span>{{ $next ? $next.'d' : 'Max' }}</span>
+                                <div class="flex items-center gap-3">
+                                    <div class="inline-flex items-center gap-1.5">
+                                        <span class="text-base">🔥</span>
+                                        <span class="text-xs uppercase tracking-wide text-gray-500">Streak</span>
+                                        <span class="text-sm font-semibold tabular-nums">{{ $current }}d</span>
                                     </div>
-                                    <div class="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                                        <div class="h-full rounded-full bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400"
-                                             style="width: {{ $progress }}%"></div>
-                                    </div>
-                                    <div class="mt-1 text-[10px] text-gray-600">
-                                        {{ $hitMilestone ? '🎉 Milestone reached!' : 'Next: '.($next ?? $current).' days' }}
+                                    <div class="flex-1">
+                                        <div class="flex justify-between text-[10px] text-gray-400">
+                                            <span>{{ $prev }}d</span>
+                                            <span>{{ $next ? $next.'d' : 'Max' }}</span>
+                                        </div>
+                                        <div class="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                                            <div class="h-full rounded-full bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400"
+                                                 style="width: {{ $progress }}%"></div>
+                                        </div>
+                                        <div class="mt-1 text-[10px] text-gray-600">
+                                            {{ $hitMilestone ? '🎉 Milestone reached!' : 'Next: '.($next ?? $current).' days' }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -131,27 +139,29 @@
             {{-- SINGLE-COLUMN LAYOUT (centered) --}}
             <div class="max-w-5xl mx-auto px-6 py-8 lg:py-10 space-y-6">
 
-                {{-- Compact streak card inline, aligned right --}}
-                @if($streaks)
+                {{-- Compact streak card inline, aligned right (home only) --}}
+                @if($showStreak && $streaks)
                     <div class="flex justify-end">
-                        <div class="inline-flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-700 shadow-sm {{ $ringClass }}"
+                        <div class="w-full max-w-xs rounded-2xl border border-gray-200 bg-white px-4 py-3 text-gray-700 shadow-sm {{ $ringClass }}"
                              title="{{ $hitMilestone ? 'Milestone reached!' : 'Keep going to your next milestone' }}">
-                            <div class="inline-flex items-center gap-1.5">
-                                <span class="text-base">🔥</span>
-                                <span class="text-xs uppercase tracking-wide text-gray-500">Streak</span>
-                                <span class="text-sm font-semibold tabular-nums">{{ $current }}d</span>
-                            </div>
-                            <div class="w-28">
-                                <div class="flex justify-between text-[10px] text-gray-400">
-                                    <span>{{ $prev }}d</span>
-                                    <span>{{ $next ? $next.'d' : 'Max' }}</span>
+                            <div class="flex items-center gap-3">
+                                <div class="inline-flex items-center gap-1.5">
+                                    <span class="text-base">🔥</span>
+                                    <span class="text-xs uppercase tracking-wide text-gray-500">Streak</span>
+                                    <span class="text-sm font-semibold tabular-nums">{{ $current }}d</span>
                                 </div>
-                                <div class="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                                    <div class="h-full rounded-full bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400"
-                                         style="width: {{ $progress }}%"></div>
-                                </div>
-                                <div class="mt-1 text-[10px] text-gray-600">
-                                    {{ $hitMilestone ? '🎉 Milestone reached!' : 'Next: '.($next ?? $current).' days' }}
+                                <div class="flex-1">
+                                    <div class="flex justify-between text-[10px] text-gray-400">
+                                        <span>{{ $prev }}d</span>
+                                        <span>{{ $next ? $next.'d' : 'Max' }}</span>
+                                    </div>
+                                    <div class="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                                        <div class="h-full rounded-full bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400"
+                                             style="width: {{ $progress }}%"></div>
+                                    </div>
+                                    <div class="mt-1 text-[10px] text-gray-600">
+                                        {{ $hitMilestone ? '🎉 Milestone reached!' : 'Next: '.($next ?? $current).' days' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>

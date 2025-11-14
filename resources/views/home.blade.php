@@ -9,12 +9,11 @@
         <p class="mt-2 text-sm opacity-90">{{ $votd['ref'] }}</p>
     </section>
 
-    {{-- ✨ Featured & Quick Actions --}}
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Featured --}}
-        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6">
+    {{-- ✨ Featured --}}
+    <section class="mt-6">
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-gray-800">Featured</h2>
+                <h2 class="text-lg font-semibold text-gray-800">✨ Featured</h2>
                 <a href="{{ route('devotionals.index') }}" class="text-sm text-amber-700 hover:underline">Browse all →</a>
             </div>
 
@@ -49,22 +48,12 @@
                 <p class="text-sm text-gray-600">No published devotionals yet.</p>
             @endif
         </div>
-
-        {{-- Quick Actions --}}
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4 text-gray-800">Quick Actions</h2>
-            <div class="space-y-3">
-                <a href="{{ route('devotionals.create') }}" class="block rounded-xl border px-4 py-3 text-center hover:bg-gray-50">+ New Devotional</a>
-                <a href="{{ route('devotionals.index', ['mine' => 1]) }}" class="block rounded-xl border px-4 py-3 text-center hover:bg-gray-50">My Posts</a>
-                <a href="{{ route('dashboard') }}" class="block rounded-xl border px-4 py-3 text-center hover:bg-gray-50">Go to Dashboard</a>
-            </div>
-        </div>
     </section>
 
     {{-- 📰 Latest Devotionals --}}
-    <section class="bg-white rounded-2xl shadow-sm p-6">
+    <section class="bg-white rounded-2xl shadow-sm p-6 mt-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-800">Latest Devotionals</h2>
+            <h2 class="text-lg font-semibold text-gray-800">📰 Latest Devotionals</h2>
             <a href="{{ route('devotionals.index') }}" class="text-sm text-amber-700 hover:underline">See more</a>
         </div>
 
@@ -98,9 +87,9 @@
 
     {{-- ✍️ Continue Writing --}}
     @auth
-        <section class="bg-white rounded-2xl shadow-sm p-6">
+        <section class="bg-white rounded-2xl shadow-sm p-6 mt-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-gray-800">Continue Writing</h2>
+                <h2 class="text-lg font-semibold text-gray-800">✍️ Continue Writing</h2>
                 <a href="{{ route('devotionals.index', ['mine' => 1]) }}" class="text-sm text-amber-700 hover:underline">All my posts</a>
             </div>
 
@@ -130,8 +119,8 @@
     @endauth
 
     {{-- 💬 Community Comments --}}
-    <section class="bg-white rounded-2xl shadow-sm p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">From the Community</h2>
+    <section class="bg-white rounded-2xl shadow-sm p-6 mt-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">💬 From the Community</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @forelse($recentComments as $c)
                 <div class="rounded-xl border hover:border-indigo-200 transition p-4">
@@ -153,7 +142,7 @@
 
     {{-- 🏷️ Tag Cloud --}}
     @if($topTags->isNotEmpty())
-        <section class="bg-white rounded-2xl shadow-sm p-6">
+        <section class="bg-white rounded-2xl shadow-sm p-6 mt-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Popular Tags</h2>
             <div class="flex flex-wrap gap-2">
                 @foreach($topTags as $t)
@@ -170,6 +159,27 @@
 
 
 @section('content-right')
+    {{-- Quick Actions moved to sidebar --}}
+    @auth
+        <section class="bg-white rounded-2xl shadow-sm p-4 mb-4 border border-gray-200">
+            <h2 class="text-sm font-semibold mb-3 text-gray-800">Quick Actions</h2>
+            <div class="space-y-2">
+                <a href="{{ route('devotionals.create') }}"
+                   class="block rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 text-center hover:bg-gray-50">
+                    + New Devotional
+                </a>
+                <a href="{{ route('devotionals.index', ['mine' => 1]) }}"
+                   class="block rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 text-center hover:bg-gray-50">
+                    My Posts
+                </a>
+                <a href="{{ route('dashboard') }}"
+                   class="block rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 text-center hover:bg-gray-50">
+                    Go to Dashboard
+                </a>
+            </div>
+        </section>
+    @endauth
+
     {{-- Sidebar: authors & tags --}}
     @include('components.sidebar.recent-authors', ['recentAuthors' => $recentAuthors ?? collect()])
     @include('components.sidebar.popular-tags', ['popularTags' => $popularTags ?? collect()])
