@@ -59,7 +59,7 @@ class HomeController extends Controller
             ->limit(12)
             ->get();
 
-        // 🔥 NEW: Popular Tags (last 60 days)
+        // NEW: Popular Tags (last 60 days)
         $popularTags = cache()->remember('popular_tags_60d', 1800, function () {
             return Tag::query()
                 ->withCount(['devotionals as recent_published_count' => function ($q) {
@@ -71,7 +71,7 @@ class HomeController extends Controller
                 ->get();
         });
 
-        // 🔥 NEW: Recent Authors (active in last 60 days)
+        // NEW: Recent Authors (active in last 60 days)
         $recentAuthors = cache()->remember('recent_authors_60d', 1800, function () {
             return User::query()
                 ->withCount(['devotionals as recent_published_count' => function ($q) {

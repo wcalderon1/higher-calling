@@ -37,9 +37,7 @@ class CommentPolicy
         return $comment->user_id === $user->id;
     }
 
-    /**
-     * Delete: admin can delete any comment; otherwise only the author can.
-     */
+    // Delete: admin can delete any comment; otherwise only the author can.
     public function delete(User $user, Comment $comment): bool
     {
         // Admin override

@@ -11,6 +11,7 @@ use App\Http\Controllers\UserReadController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PlanProgressController;
+use App\Http\Controllers\DevotionalLikeController;
 
 Route::get('/', [HomeController::class, 'show'])->name('home');
 
@@ -18,9 +19,7 @@ Route::get('/dashboard', [DashboardController::class, 'show'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-/**
- * Auth-only routes (create/store/edit/update/destroy)
- */
+//Auth routes
 Route::middleware('auth')->group(function () {
     // Devotionals (auth)
     Route::get('devotionals/create', [DevotionalController::class, 'create'])
@@ -37,6 +36,10 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('devotionals/{devotional:slug}', [DevotionalController::class, 'destroy'])
         ->name('devotionals.destroy');
+
+     Route::post('/devotionals/{devotional}/like', [DevotionalLikeController::class, 'toggle'])
+        ->middleware('auth')
+        ->name('devotionals.like');
 
     // Comments (auth)
     Route::post('devotionals/{devotional:slug}/comments', [CommentController::class, 'store'])
@@ -66,9 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::post('plan-entries/{entry}/toggle', [PlanProgressController::class, 'toggle'])->name('plan_entries.toggle');
 });
 
-/**
- * Public routes
- */
+//public routes
 Route::get('devotionals', [DevotionalController::class, 'index'])
     ->name('devotionals.index');
 

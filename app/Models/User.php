@@ -7,6 +7,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Devotional;
+
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 class User extends Authenticatable // implements MustVerifyEmail
@@ -92,5 +94,12 @@ class User extends Authenticatable // implements MustVerifyEmail
     public function isAdmin(): bool
     {
         return (bool) $this->is_admin;
+    }
+
+    //Likes on devotionals
+    public function likedDevotionals()
+    {
+        return $this->belongsToMany(Devotional::class, 'devotional_likes')
+            ->withTimestamps();
     }
 }

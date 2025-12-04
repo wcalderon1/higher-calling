@@ -1,4 +1,3 @@
-{{-- resources/views/devotionals/show.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
@@ -18,65 +17,73 @@
         @endcan
     </div>
 
-    <article class="rounded-2xl border bg-white p-7 shadow-sm">
-        @if($devotional->cover_path)
-            <img src="{{ asset('storage/'.$devotional->cover_path) }}"
-                 alt="{{ $devotional->title }} cover"
-                 class="w-full rounded-xl border mb-5 object-cover max-h-96">
+<article class="rounded-2xl border bg-white p-7 shadow-sm">
+    @if($devotional->cover_path)
+        <img src="{{ asset('storage/'.$devotional->cover_path) }}"
+             alt="{{ $devotional->title }} cover"
+             class="w-full rounded-xl border mb-5 object-cover max-h-96">
+    @endif
+
+    <header>
+        <h1 class="text-3xl font-semibold leading-tight">{{ $devotional->title }}</h1>
+        <p class="mt-2 text-sm text-gray-500">
+            By {{ optional($devotional->author)->name ?? 'Unknown' }}
+            @if($devotional->published_at) • {{ $devotional->published_at->format('M j, Y') }} @endif
+            @if($devotional->status !== 'published') • <span class="uppercase tracking-wide">{{ $devotional->status }}</span> @endif
+        </p>
+
+        @if($devotional->excerpt)
+            <p class="mt-4 text-gray-700">{{ $devotional->excerpt }}</p>
         @endif
 
-        <header>
-            <h1 class="text-3xl font-semibold leading-tight">{{ $devotional->title }}</h1>
-            <p class="mt-2 text-sm text-gray-500">
-                By {{ optional($devotional->author)->name ?? 'Unknown' }}
-                @if($devotional->published_at) • {{ $devotional->published_at->format('M j, Y') }} @endif
-                @if($devotional->status !== 'published') • <span class="uppercase tracking-wide">{{ $devotional->status }}</span> @endif
-            </p>
+        @if($devotional->tags->isNotEmpty())
+            <div class="mt-3 flex flex-wrap gap-2">
+                @foreach($devotional->tags as $t)
+                    <a href="{{ route('devotionals.index', ['tags' => [$t->slug]]) }}"
+                       class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs text-gray-700 hover:bg-gray-50">
+                       #{{ $t->name }}
+                    </a>
+                @endforeach
+            </div>
+        @endif
+    </header>
 
-            @if($devotional->excerpt)
-                <p class="mt-4 text-gray-700">{{ $devotional->excerpt }}</p>
-            @endif
+    @php
+        $user = auth()->user();
+        $isLiked = $devotional->isLikedBy($user);
+        $likesCount = $devotional->likes()->count();
+    @endphp
 
-            @if($devotional->tags->isNotEmpty())
-                <div class="mt-3 flex flex-wrap gap-2">
-                    @foreach($devotional->tags as $t)
-                        <a href="{{ route('devotionals.index', ['tags' => [$t->slug]]) }}"
-                           class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs text-gray-700 hover:bg-gray-50">
-                           #{{ $t->name }}
-                        </a>
-                    @endforeach
-                </div>
-            @endif
-        </header>
+    {{-- Mark as Read + Likes row --}}
+    @auth
+        @php
+            // Has the current user already marked a read for today?
+            $todayRead = auth()->user()->reads()->whereDate('read_on', today())->first();
+            $hasReadToday = (bool) $todayRead;
+            // Optional guard: if you want to only show when this is today's devotional, keep this truthy check
+            $isTodayDevotional = optional($devotional->published_at)->isToday() ?? true; // default true if null
+        @endphp
 
-        {{-- Mark as Read (auth only) --}}
-        @auth
-            @php
-                // Has the current user already marked a read for today?
-                $todayRead = auth()->user()->reads()->whereDate('read_on', today())->first();
-                $hasReadToday = (bool) $todayRead;
-                // Optional guard: if you want to only show when this is today's devotional, keep this truthy check
-                $isTodayDevotional = optional($devotional->published_at)->isToday() ?? true; // default true if null
-            @endphp
+        {{-- Flash messages from controller --}}
+        @if(session('success'))
+            <div class="mt-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm px-3 py-2">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('info'))
+            <div class="mt-4 rounded-lg bg-amber-50 text-amber-800 text-sm px-3 py-2">
+                {{ session('info') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="mt-4 rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
+                {{ session('error') }}
+            </div>
+        @endif
 
-            {{-- Flash messages from controller --}}
-            @if(session('success'))
-                <div class="mt-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm px-3 py-2">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if(session('info'))
-                <div class="mt-4 rounded-lg bg-amber-50 text-amber-800 text-sm px-3 py-2">
-                    {{ session('info') }}
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="mt-4 rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            <div class="mt-5 flex items-center justify-between gap-3">
+        <div class="mt-5 flex items-center justify-between gap-4">
+            {{-- Left: Mark as Read status --}}
+            <div>
                 @if(!$hasReadToday && $isTodayDevotional)
                     <form method="POST" action="{{ route('devotionals.read', $devotional) }}">
                         @csrf
@@ -91,13 +98,59 @@
                         ✓ Already counted for today
                     </span>
                 @endif
-            </div>
-        @endauth
+                        </div>
 
-        <div class="prose max-w-none mt-6">
-            {!! nl2br(e($devotional->body)) !!}
+                        {{-- Right: Likes --}}
+                        <div>
+                            <form action="{{ route('devotionals.like', $devotional) }}" method="POST">
+                                @csrf
+            <div class="flex flex-col items-end">
+                {{-- Label --}}
+                <span class="text-xs uppercase tracking-wide text-gray-600 mb-1">
+                    Likes
+                </span>
+
+                {{-- Like button --}}
+                <button
+                    type="submit"
+                    class="inline-flex items-center gap-3 transition
+                        {{ $isLiked ? 'text-rose-600' : 'text-gray-500 hover:text-rose-500' }}"
+                >
+                    <span class="text-4xl leading-none select-none">
+                        {{ $isLiked ? '♥' : '♡' }}
+                    </span>
+
+                    {{-- Count or message --}}
+                    @if($likesCount > 0)
+                        <span class="text-lg font-semibold">
+                            {{ $likesCount }}
+                        </span>
+                    @else
+                        <span class="text-sm text-gray-600 italic">
+                            Be the first to like this
+                        </span>
+                    @endif
+                </button>
+            </div>
+                </form>
+            </div>
         </div>
-    </article>
+    @else
+        {{-- Guests: show likes only with hint --}}
+        <div class="mt-5 flex items-center justify-end">
+            <div class="inline-flex items-center gap-2 text-sm text-gray-400">
+                <span class="text-2xl leading-none">♡</span>
+                <span class="font-semibold">{{ $likesCount }}</span>
+                <span class="ml-1">(log in to like)</span>
+            </div>
+        </div>
+    @endauth
+
+    <div class="prose max-w-none mt-6">
+        {!! nl2br(e($devotional->body)) !!}
+    </div>
+</article>
+
 
     @if(auth()->check() && auth()->user()->is_admin)
     <div class="mt-4 mb-6 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-amber-900">

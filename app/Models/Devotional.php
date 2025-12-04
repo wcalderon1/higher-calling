@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
+
 
 class Devotional extends Model
 {
@@ -56,4 +58,20 @@ class Devotional extends Model
     {
         return 'slug';
     }
+
+        public function likes()
+    {
+        return $this->belongsToMany(User::class, 'devotional_likes')
+            ->withTimestamps();
+    }
+
+    public function isLikedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return $this->likes()->where('user_id', $user->id)->exists();
+    }
+
 }

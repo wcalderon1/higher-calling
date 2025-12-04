@@ -19,7 +19,7 @@
     $followerLabel  = $followersCount === 1 ? 'Follower' : 'Followers';
 @endphp
 
-<!-- HERO -->
+
 <div class="bg-gradient-to-b from-slate-50 to-white border-b">
     <div class="max-w-4xl mx-auto px-6 py-10">
         <div class="flex items-center gap-6">
@@ -101,7 +101,7 @@
             @endif
         </div>
 
-        <!-- 🔥 Streaks (owner only, safe if service missing) -->
+        <!-- Streaks (owner only, safe if service missing) -->
         @if($isMe)
             @auth
                 @php

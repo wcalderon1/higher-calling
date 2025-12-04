@@ -13,7 +13,7 @@
         </div>
 
         {{-- Search form --}}
-        <form method="GET" action="{{ route('search.index') }}" class="flex flex-col sm:flex-row gap-3 max-w-2xl">
+        <form method="GET" action="{{ url('/search') }}" class="flex flex-col sm:flex-row gap-3 max-w-2xl">
             <input
                 type="text"
                 name="q"
@@ -194,7 +194,7 @@
                     @else
                         <div class="flex flex-wrap gap-2">
                             @foreach ($tags as $tag)
-                                <a href="{{ route('tags.show', $tag->slug) }}"
+                                <a href="{{ route('devotionals.index', ['tag' => $tag->slug]) }}"
                                    class="inline-flex flex-col rounded-2xl border border-slate-100 bg-white px-3 py-2 hover:border-amber-300 hover:shadow-sm transition">
                                     <span class="text-xs font-semibold text-slate-900">
                                         #{{ $tag->name }}

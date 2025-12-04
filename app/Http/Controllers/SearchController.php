@@ -14,30 +14,35 @@ class SearchController extends Controller
     public function __invoke(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
+
+        // Always define these so the view never hits "undefined variable"
         $devotionals = collect();
-        $users = collect();
-        $tags = collect();
-        $plans = collect();
+        $users       = collect();
+        $tags        = collect();
+        $plans       = collect();
 
         if ($q !== '') {
-            $like = '%'.$q.'%';
+            $like = '%' . $q . '%';
+            $user = $request->user();
 
             // Devotionals search
-            $devotionals = Devotional::query()
-                ->with(['user:id,display_name,name', 'tags:id,name,slug'])
-                ->select('id', 'title', 'slug', 'excerpt', 'body', 'published_at', 'user_id', 'created_at')
-                // non-admins only see published devotionals
-                ->when(!(Auth::check() && Auth::user()->isAdmin()), function ($q2) {
-                    $q2->whereNotNull('published_at')
-                       ->where('published_at', '<=', now());
-                })
+            $devotionalsQuery = Devotional::query()
+                ->with(['user', 'tags'])
+                ->select('id', 'title', 'slug', 'excerpt', 'body', 'published_at', 'user_id');
+
+            // Only admins can see unpublished devotionals
+            if (! $user || ! $user->isAdmin()) {
+                $devotionalsQuery->whereNotNull('published_at');
+            }
+
+            $devotionals = $devotionalsQuery
                 ->where(function ($w) use ($like) {
                     $w->where('title', 'like', $like)
                       ->orWhere('excerpt', 'like', $like)
                       ->orWhere('body', 'like', $like);
                 })
-                ->latest('published_at')
-                ->limit(10)
+                ->orderByDesc('published_at')
+                ->limit(6)
                 ->get();
 
             // Users search
@@ -63,12 +68,12 @@ class SearchController extends Controller
                 ->limit(8)
                 ->get();
 
-            // Plans search
+            // Plans search – your table has slug + description
             $plans = Plan::query()
                 ->select('id', 'slug', 'description')
                 ->where(function ($w) use ($like) {
                     $w->where('slug', 'like', $like)
-                    ->orWhere('description', 'like', $like);
+                      ->orWhere('description', 'like', $like);
                 })
                 ->orderBy('slug')
                 ->limit(6)
