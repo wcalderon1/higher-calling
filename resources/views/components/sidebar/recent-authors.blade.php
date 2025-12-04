@@ -27,10 +27,32 @@
                       clip-rule="evenodd"/>
               </svg>
             </div>
-            <div class="text-xs text-gray-500 truncate">
-              {{ $u->recent_published_count }}
-              {{ Str::plural('devotional', $u->recent_published_count) }} • 60d
-            </div>
+        @php
+            // Find this author's most recently published devotional
+            $latestDevotional = $u->devotionals()
+                ->whereNotNull('published_at')
+                ->latest('published_at')
+                ->first();
+
+            // Force a clean whole number of days (no decimals)
+            $daysAgo = null;
+            if ($latestDevotional && $latestDevotional->published_at) {
+                $rawDays = $latestDevotional->published_at->diffInRealHours(now()) / 24;
+                $daysAgo = (int) floor($rawDays);  // 49.67 → 49
+                if ($daysAgo < 0) {
+                    $daysAgo = 0;
+                }
+            }
+        @endphp
+
+      <div class="text-xs text-gray-500 truncate">
+          {{ $u->recent_published_count }}
+          {{ Str::plural('devotional', $u->recent_published_count) }}
+          @if(!is_null($daysAgo))
+              • {{ $daysAgo }}d
+          @endif
+      </div>
+
           </div>
         </a>
       </li>
