@@ -114,11 +114,12 @@
                 <button
                     type="submit"
                     class="inline-flex items-center gap-3 transition
-                        {{ $isLiked ? 'text-rose-600' : 'text-gray-500 hover:text-rose-500' }}"
+                        {{ $isLiked ? 'text-red-600' : 'text-gray-500 hover:text-red-500' }}"
                 >
-                    <span class="text-4xl leading-none select-none">
+                    <span class="leading-none select-none" style="font-size: 2.2rem;">
                         {{ $isLiked ? '♥' : '♡' }}
                     </span>
+
 
                     {{-- Count or message --}}
                     @if($likesCount > 0)
