@@ -1,61 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Higher Calling — Full-Stack Social Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Stack:** Laravel, MySQL, PHP, Tailwind CSS, JavaScript
+**Deployed:** cPanel (live web deployment)
+**Course:** Capstone Project — Georgia Gwinnett College, Fall 2025
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Project Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Higher Calling is a faith-based social platform built with Laravel as a full-stack capstone project. The platform enables users to connect around spiritual content through devotionals, community interaction, and personalized reading plans.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+This project demonstrates end-to-end full-stack development: from database design and backend logic to frontend UI and live deployment.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Features
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+| Feature | Description |
+|---|---|
+| User Profiles | Account registration, login, and personalized profile pages |
+| Devotionals | Create, publish, and browse daily devotional posts |
+| Social Interaction | Comments, likes, and follower/following system |
+| Reading Plans | Structured reading plans with progress tracking |
+| Admin Panel | Role-based moderation tools for content management |
+| Responsive Design | Mobile-first layout built with Tailwind CSS |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Tech Stack
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Layer | Technology |
+|---|---|
+| Backend Framework | Laravel (PHP) |
+| Database | MySQL with Eloquent ORM |
+| Frontend Styling | Tailwind CSS + Blade templates |
+| Interactivity | JavaScript |
+| Build Tool | Vite |
+| Deployment | cPanel shared hosting |
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Database Schema
 
-## Contributing
+| Table | Purpose |
+|---|---|
+| Users | Authentication, profile data, roles |
+| Devotionals | Posts with categories and publish status |
+| Comments | Nested comments on devotionals |
+| Follows | Many-to-many follower relationships |
+| Reading Plans | Plan definitions and user progress tracking |
+| Likes | Polymorphic like system |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Highlights
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Built and deployed a production-ready web application as a solo capstone project. Implemented role-based permissions using Laravel's authorization system (Gates & Policies). Managed the full deployment lifecycle including environment configuration, asset compilation with Vite, and cPanel setup. Focused on accessibility, mobile responsiveness, and intuitive navigation throughout.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Local Setup
 
-## License
+```bash
+git clone https://github.com/wcalderon1/higher-calling.git
+cd higher-calling
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+# Configure your .env with database credentials
+php artisan migrate --seed
+npm run dev
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+*Individual project — Wendy Calderon · Georgia Gwinnett College · Fall 2025*
